@@ -5,9 +5,15 @@ import sys
 class CPU:
     """Main CPU class."""
 
+    HLT = 0b00000001
+    LDI = 0b10000010
+    PRN = 0b01000111
+
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
 
     def load(self):
         """Load a program into memory."""
@@ -62,4 +68,29 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        halted = False
+
+        while not halted:
+            instruction = self.ram_read(self.pc)
+
+            if instruction == LDI:
+                operand_a = self.ram_read(self.pc+1)
+                operand_b = self.ram_read(self.pc+2)
+
+                self.reg[operand_a] = operand_b
+
+                self.pc += 3
+
+            elif instruction == PRN:
+                operand_a = self.ram_read(self.pc+1)
+                print(self.reg[operand_a])
+
+                self.pc += 2
+
+            elif instruction == HLT:
+                halted = True
+                self.pc = 0
+
+            else:
+                print(f"Unknown instruction at index {self.pc}")
+                sys.exit(1)
